@@ -4,14 +4,17 @@ import { motion } from "framer-motion";
 
 export default function PullQuote() {
   return (
-    <section className="relative min-h-[70vh] w-full flex items-center justify-center bg-background overflow-hidden px-6 py-24">
+    <section className="relative min-h-[60vh] w-full flex items-center justify-center bg-white overflow-hidden px-6 py-24">
+      {/* Subtle gradient background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-[0.06]"
+        style={{ backgroundImage: "url(/gradients/bg-crl-fade.jpg)" }}
+      />
+
       {/* Large decorative quotation mark */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[400px] font-serif text-white/[0.02] select-none pointer-events-none leading-none">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[400px] font-serif text-foreground/[0.02] select-none pointer-events-none leading-none">
         &ldquo;
       </div>
-
-      {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-accent-purple/[0.04] rounded-full blur-[120px]" />
 
       <motion.blockquote
         initial={{ opacity: 0, scale: 0.95 }}

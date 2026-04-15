@@ -7,15 +7,7 @@ import TerminalBlock from "@/components/ui/TerminalBlock";
 
 export default function InPractice() {
   return (
-    <SectionWrapper dark={false}>
-      {/* Ambient teal accent */}
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] opacity-[0.06]">
-        <div
-          className="w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: "url(/gradients/bg-5.png)" }}
-        />
-      </div>
-
+    <SectionWrapper surface>
       <div className="max-w-5xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -25,9 +17,9 @@ export default function InPractice() {
           className="text-center mb-16"
         >
           <Eyebrow>In Practice</Eyebrow>
-          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight">
+          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight text-foreground">
             Fast forward{" "}
-            <span className="italic gradient-text">six months.</span>
+            <span className="italic gradient-text">six months or six years.</span>
           </h2>
           <p className="mt-8 text-muted text-lg max-w-2xl mx-auto leading-relaxed">
             What used to take six months of lived experience now takes six

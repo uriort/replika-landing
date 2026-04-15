@@ -22,7 +22,7 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-background/80 backdrop-blur-xl border-b border-white/[0.06]"
+          ? "bg-white/80 backdrop-blur-xl border-b border-foreground/[0.06] shadow-sm"
           : "bg-transparent"
       }`}
     >
@@ -45,7 +45,7 @@ export default function Navbar() {
 
         <a
           href="#early-access"
-          className="hidden md:inline-flex items-center gap-2 text-[13px] font-medium px-5 py-2.5 rounded-full border border-white/[0.1] text-foreground hover:bg-white/[0.06] transition-all duration-300"
+          className="hidden md:inline-flex items-center gap-2 text-[13px] font-medium px-5 py-2.5 rounded-full bg-foreground text-white hover:bg-foreground/90 transition-all duration-300"
         >
           Request Early Access
           <svg
@@ -76,24 +76,16 @@ export default function Navbar() {
             strokeWidth={1.5}
           >
             {mobileOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 8h16M4 16h16"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" />
             )}
           </svg>
         </button>
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden bg-background/95 backdrop-blur-xl border-t border-white/[0.06] px-6 py-6 flex flex-col gap-5">
+        <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-foreground/[0.06] px-6 py-6 flex flex-col gap-5">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}

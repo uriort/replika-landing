@@ -15,7 +15,7 @@ export default function ArrowCTA({
     "group inline-flex items-center gap-3 text-sm font-medium tracking-wide transition-all duration-300";
   const variants = {
     primary:
-      "px-8 py-4 rounded-full bg-white/[0.07] border border-white/[0.1] text-foreground hover:bg-white/[0.12] hover:border-white/[0.2]",
+      "px-8 py-4 rounded-full bg-foreground text-white hover:bg-foreground/90 shadow-md hover:shadow-lg",
     secondary: "text-muted hover:text-foreground",
   };
 

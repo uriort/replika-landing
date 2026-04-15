@@ -11,28 +11,28 @@ const STEPS = [
     title: "INGEST",
     subtitle: "Build the Twin",
     description:
-      "Each employee becomes an agent twin -- grounded in their Core Drivers, Core Values, personality profile, role, tenure, and ONA edge data. The twin knows who they talk to, who they trust, and what motivates them.",
+      "Each employee becomes an agent twin -- designed around their Core Drivers, Core Values, tenure, title, network, edge data, and more. The twin is context aware to all signal exhaust in an organization.",
   },
   {
     num: "02",
     title: "CONTEXT",
     subtitle: "Set the World",
     description:
-      "Live variables feed the simulation: stock price, P&L, headcount changes, market shifts. Your digital org operates inside a faithful replica of its actual industry context -- updated continuously.",
+      "Real-time variables feed the simulation: stock price, P&L, headcount changes, market shifts, geopolitics. Your digital org operates inside a faithful replica of its actual industry context, and using caretaker agents, is updated continuously.",
   },
   {
     num: "03",
     title: "SIMULATE",
     subtitle: "Run at Scale",
     description:
-      "Monte Carlo simulation runs thousands of scenario branches simultaneously. Each branch evolves through daily agent interactions -- producing emergent outcomes no survey could predict.",
+      "Monte Carlo simulation runs thousands of scenario branches simultaneously. Each branch evolves through daily agent interactions, producing life-like emergent outcomes, that build on previous interactions.",
   },
   {
     num: "04",
     title: "INTERVENE",
     subtitle: "Act with Confidence",
     description:
-      "Test a hire. Change a compensation band. Restructure a team. See the probability distribution of outcomes across a thousand simulated futures before a single real decision is made.",
+      "Before a single critical decision is made, see it play out across a thousand simulated futures — from comparing candidates, to restructuring a team, and more.",
   },
 ];
 
@@ -55,7 +55,7 @@ export default function HowItWorks() {
           className="text-center mb-20"
         >
           <Eyebrow>Architecture</Eyebrow>
-          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight">
+          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight text-foreground">
             A living replica of your
             <br />
             <span className="italic gradient-text">entire organization.</span>
@@ -64,7 +64,7 @@ export default function HowItWorks() {
 
         <div className="relative">
           {/* Vertical progress line */}
-          <div className="absolute left-[28px] md:left-[40px] top-0 bottom-0 w-[1px] bg-white/[0.06]">
+          <div className="absolute left-[28px] md:left-[40px] top-0 bottom-0 w-[1px] bg-foreground/[0.06]">
             <motion.div
               className="w-full bg-gradient-to-b from-accent-purple via-accent-coral to-accent-teal"
               style={{ height: lineHeight }}
@@ -81,7 +81,7 @@ export default function HowItWorks() {
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 className="flex gap-8 md:gap-12 items-start pl-2 md:pl-4"
               >
-                <div className="relative z-10 flex-shrink-0 w-14 h-14 md:w-18 md:h-18 rounded-full bg-surface border border-white/[0.08] flex items-center justify-center">
+                <div className="relative z-10 flex-shrink-0 w-14 h-14 md:w-18 md:h-18 rounded-full bg-white border border-foreground/[0.08] card-shadow flex items-center justify-center">
                   <span className="font-mono text-sm gradient-text font-bold">
                     {step.num}
                   </span>

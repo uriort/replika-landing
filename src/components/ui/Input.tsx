@@ -38,13 +38,13 @@ export default function Input({
         onChange={onChange}
         onBlur={onBlur}
         required={required}
-        className={`w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border text-foreground placeholder:text-muted/50 text-sm transition-all duration-200 outline-none focus:bg-white/[0.07] ${
+        className={`w-full px-4 py-3.5 rounded-xl bg-surface border text-foreground placeholder:text-muted/40 text-sm transition-all duration-200 outline-none focus:bg-white focus:shadow-md ${
           error
-            ? "border-red-400/60 focus:border-red-400"
-            : "border-white/[0.08] focus:border-accent-purple/50"
+            ? "border-red-400 focus:border-red-500"
+            : "border-foreground/[0.08] focus:border-accent-purple/50"
         }`}
       />
-      {error && <p className="text-xs text-red-400 mt-0.5">{error}</p>}
+      {error && <p className="text-xs text-red-500 mt-0.5">{error}</p>}
     </div>
   );
 }
