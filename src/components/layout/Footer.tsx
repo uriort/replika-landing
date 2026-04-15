@@ -7,11 +7,28 @@ export default function Footer() {
             Replika
           </span>
           <span className="text-foreground/10">|</span>
-          <span>By Deeper Signals</span>
+          <span>
+            By{" "}
+            <a
+              href="https://www.deepersignals.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors"
+            >
+              Deeper Signals
+            </a>
+          </span>
         </div>
         <div className="flex items-center gap-6">
           <span>Science</span>
-          <span>Privacy</span>
+          <a
+            href="https://deepersignals.com/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground transition-colors"
+          >
+            Privacy
+          </a>
           <span>Contact</span>
         </div>
         <span>&copy; 2026 Deeper Signals, Inc.</span>

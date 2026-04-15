@@ -81,12 +81,12 @@ export default function EarlyAccess() {
         <div className="text-center mb-10">
           <Eyebrow>Early Access Program</Eyebrow>
           <h2 className="font-serif text-3xl md:text-4xl font-semibold leading-tight text-foreground">
-            Run your organization
+            Simulate your organization
             <br />
             before you <span className="italic gradient-text">run it.</span>
           </h2>
           <p className="mt-4 text-sm text-muted">
-            No spam. No decks. A conversation.
+            Have a conversation with the future.
           </p>
         </div>
 

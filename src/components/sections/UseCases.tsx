@@ -10,9 +10,9 @@ const CASES = [
     id: "hiring",
     tab: "Hiring",
     tag: "Executive Hiring",
-    title: "C-Suite Hiring Decisions",
+    title: "Critical Hiring Decisions",
     description:
-      "Before making a critical executive hire, simulate how they'll interact with the board, influence team dynamics, and ripple across the entire organization. See how their leadership style, Core Drivers, and decision-making patterns will reshape culture, power structures, and performance -- before the offer letter goes out.",
+      "Before making a critical executive hire, simulate how they'll interact with the board, influence team dynamics, and ripple across the entire organization. See how their leadership style, personality, and decision-making patterns will reshape culture, power structures, and performance before the offer letter goes out.",
     metrics: [
       { label: "Board Fit", value: "94%" },
       { label: "Org Impact", value: "3.2x" },
@@ -26,7 +26,7 @@ const CASES = [
     tag: "Total Rewards",
     title: "Compensation Strategy",
     description:
-      "Test compensation band changes across a thousand simulated futures before rolling them out. Predict how specific employees -- and teams -- will react based on their Core Drivers, peer comparison sensitivity, and historical engagement signals.",
+      "Simulate compensation band changes across a thousand simulated futures before rolling them out. Predict how employees, regions, teams, and functions will react based on their values, personality, dynamics and historical signals.",
     metrics: [
       { label: "Attrition Risk", value: "-18%" },
       { label: "Engagement Lift", value: "+0.31\u03c3" },
@@ -40,7 +40,7 @@ const CASES = [
     tag: "L&D / Coaching",
     title: "Leadership Development",
     description:
-      "Simulate a leader's impact before they're promoted. Model how their decisions will cascade through their team, what team culture will emerge, and where coaching interventions are most likely to unlock performance.",
+      "Simulate leadership impact before making a succession decision. Model how their values will cascade through their organization and the team culture that will emerge in a year from now.",
     metrics: [
       { label: "Cascade Depth", value: "4 tiers" },
       { label: "Culture Shift", value: "Mapped" },

@@ -24,7 +24,7 @@ export default function Home() {
         <Science />
         <UseCases />
         <PullQuote />
-        <WhyReplika />
+        {/* WhyReplika section removed */}
         <EarlyAccess />
       </main>
       <Footer />
