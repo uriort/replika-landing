@@ -18,7 +18,7 @@ const CASES = [
       { label: "Org Impact", value: "3.2x" },
       { label: "Time to Insight", value: "< 6min" },
     ],
-    accent: "accent-purple",
+    gradient: "from-[#7B61FF] to-[#A78BFA]",
   },
   {
     id: "compensation",
@@ -32,7 +32,7 @@ const CASES = [
       { label: "Engagement Lift", value: "+0.31\u03c3" },
       { label: "Scenarios Tested", value: "1,000" },
     ],
-    accent: "accent-coral",
+    gradient: "from-[#F97066] to-[#FBB4A5]",
   },
   {
     id: "leadership",
@@ -46,7 +46,7 @@ const CASES = [
       { label: "Culture Shift", value: "Mapped" },
       { label: "Coaching ROI", value: "2.7x" },
     ],
-    accent: "accent-teal",
+    gradient: "from-[#2DD4BF] to-[#67E8D0]",
   },
   {
     id: "reorg",
@@ -60,7 +60,7 @@ const CASES = [
       { label: "Trust Dynamics", value: "Modeled" },
       { label: "Hidden Costs", value: "Surfaced" },
     ],
-    accent: "accent-purple",
+    gradient: "from-[#7B61FF] to-[#2DD4BF]",
   },
   {
     id: "attrition",
@@ -74,7 +74,7 @@ const CASES = [
       { label: "Cluster Detection", value: "Teams" },
       { label: "Precision", value: "p90" },
     ],
-    accent: "accent-coral",
+    gradient: "from-[#F97066] to-[#7B61FF]",
   },
   {
     id: "executive",
@@ -88,7 +88,7 @@ const CASES = [
       { label: "Segments", value: "All bands" },
       { label: "Intent vs Impact", value: "Measured" },
     ],
-    accent: "accent-teal",
+    gradient: "from-[#2DD4BF] to-[#F97066]",
   },
 ];
 
@@ -98,7 +98,7 @@ export default function UseCases() {
 
   return (
     <SectionWrapper id="use-cases">
-      <div className="max-w-5xl mx-auto w-full">
+      <div className="max-w-4xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -114,7 +114,7 @@ export default function UseCases() {
           </h2>
         </motion.div>
 
-        {/* Tab bar */}
+        {/* Tab pills */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -126,13 +126,23 @@ export default function UseCases() {
             <button
               key={c.id}
               onClick={() => setActiveId(c.id)}
-              className={`px-5 py-2.5 rounded-full text-[13px] font-medium transition-all duration-300 ${
+              className={`relative px-5 py-2.5 rounded-full text-[13px] font-medium transition-all duration-300 ${
                 activeId === c.id
-                  ? "bg-foreground text-white shadow-md"
-                  : "text-muted hover:text-foreground hover:bg-surface border border-transparent"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
               }`}
             >
-              {c.tab}
+              {/* Gradient border for active tab */}
+              {activeId === c.id && (
+                <motion.span
+                  layoutId="tab-border"
+                  className={`absolute inset-0 rounded-full p-px bg-gradient-to-r ${c.gradient}`}
+                  transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                >
+                  <span className="block w-full h-full rounded-full bg-white" />
+                </motion.span>
+              )}
+              <span className="relative z-10">{c.tab}</span>
             </button>
           ))}
         </motion.div>
@@ -145,34 +155,46 @@ export default function UseCases() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.35 }}
-            className="bg-white rounded-2xl card-shadow-lg p-8 md:p-12"
           >
-            <div className="flex flex-col md:flex-row gap-10">
-              <div className="flex-1">
-                <span className="text-[10px] uppercase tracking-[0.15em] text-muted block mb-3">
-                  {activeCase.tag}
-                </span>
-                <h3 className="text-2xl md:text-3xl font-semibold text-foreground mb-5 font-serif">
-                  {activeCase.title}
-                </h3>
-                <p className="text-base text-muted leading-relaxed">
-                  {activeCase.description}
-                </p>
-              </div>
+            {/* Gradient border wrapper */}
+            <div className={`relative rounded-2xl p-px bg-gradient-to-r ${activeCase.gradient}`}>
+              {/* Glow */}
+              <div
+                className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${activeCase.gradient} opacity-[0.1] blur-2xl -z-10`}
+              />
 
-              <div className="flex flex-row md:flex-col gap-6 md:gap-8 md:w-48 md:border-l md:border-foreground/[0.06] md:pl-10">
-                {activeCase.metrics.map((m) => (
-                  <div key={m.label}>
-                    <div
-                      className={`font-mono text-2xl md:text-3xl font-bold text-${activeCase.accent} mb-1`}
-                    >
-                      {m.value}
-                    </div>
-                    <div className="text-[11px] uppercase tracking-[0.12em] text-muted">
-                      {m.label}
-                    </div>
+              <div className="relative rounded-[15px] bg-white p-8 md:p-10">
+                <div className="flex flex-col md:flex-row gap-8">
+                  <div className="flex-1">
+                    <span className="text-[10px] uppercase tracking-[0.15em] text-muted block mb-3">
+                      {activeCase.tag}
+                    </span>
+                    <h3 className="text-2xl md:text-3xl font-semibold text-foreground mb-5 font-serif">
+                      {activeCase.title}
+                    </h3>
+                    <p className="text-sm text-muted leading-[1.8]">
+                      {activeCase.description}
+                    </p>
                   </div>
-                ))}
+
+                  {/* Metrics with gradient divider */}
+                  <div className="flex flex-row md:flex-col gap-6 md:gap-7 md:w-44 md:pl-8 relative">
+                    {/* Gradient vertical line on desktop */}
+                    <div
+                      className={`hidden md:block absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b ${activeCase.gradient} opacity-30`}
+                    />
+                    {activeCase.metrics.map((m) => (
+                      <div key={m.label}>
+                        <div className="font-mono text-xl md:text-2xl font-bold text-foreground mb-1">
+                          {m.value}
+                        </div>
+                        <div className="text-[10px] uppercase tracking-[0.12em] text-muted">
+                          {m.label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>

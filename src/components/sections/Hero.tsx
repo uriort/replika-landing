@@ -95,7 +95,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <Eyebrow>Organizational Intelligence</Eyebrow>
+          <Eyebrow>Replika</Eyebrow>
         </motion.div>
 
         <motion.h1
@@ -125,7 +125,7 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 1.0 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <ArrowCTA href="#early-access">Request Early Access</ArrowCTA>
+          <ArrowCTA href="#early-access">Explore more</ArrowCTA>
         </motion.div>
       </div>
 

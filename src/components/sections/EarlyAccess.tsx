@@ -86,8 +86,8 @@ export default function EarlyAccess() {
             <br />
             before you <span className="italic gradient-text">run it.</span>
           </h2>
-          <p className="mt-4 text-sm text-muted">
-            Have a conversation with the future.
+          <p className="mt-4 text-sm text-muted max-w-sm mx-auto leading-relaxed">
+            We're partnering with forward-thinking organizations to co-develop and stress-test this technology. If you'd like to explore what a living simulation of your workforce could look like, we'd love to build it with you.
           </p>
         </div>
 
@@ -182,7 +182,7 @@ export default function EarlyAccess() {
                   Submitting...
                 </span>
               ) : (
-                "Request Early Access"
+                "Explore more"
               )}
             </button>
           </form>

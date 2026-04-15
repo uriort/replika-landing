@@ -47,7 +47,7 @@ export default function Navbar() {
           href="#early-access"
           className="hidden md:inline-flex items-center gap-2 text-[13px] font-medium px-5 py-2.5 rounded-full bg-foreground text-white hover:bg-foreground/90 transition-all duration-300"
         >
-          Request Early Access
+          Explore more
           <svg
             className="w-3.5 h-3.5"
             fill="none"
@@ -101,7 +101,7 @@ export default function Navbar() {
             onClick={() => setMobileOpen(false)}
             className="text-sm font-medium text-accent-purple"
           >
-            Request Early Access
+            Explore more
           </a>
         </div>
       )}

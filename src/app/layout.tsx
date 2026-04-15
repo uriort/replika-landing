@@ -1,4 +1,6 @@
+import Script from "next/script";
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Inter, Manrope, Space_Grotesk, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -44,7 +46,24 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${manrope.variable} ${spaceGrotesk.variable} ${geistMono.variable} antialiased`}
     >
-      <body>{children}</body>
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-1E9Q5KWY3V"
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-1E9Q5KWY3V');
+          `}
+        </Script>
+      </head>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
