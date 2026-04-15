@@ -6,7 +6,7 @@ import path from "path";
 const LEADS_FILE = path.join(process.cwd(), "data", "leads.json");
 const NOTIFY_EMAIL = "uri@deepersignals.com";
 
-async function saveLead(lead: { name: string; organization: string; email: string; submittedAt: string }) {
+async function saveLead(lead: { name: string; organization: string; email: string; existingClient: string; submittedAt: string }) {
   const dir = path.dirname(LEADS_FILE);
   await fs.mkdir(dir, { recursive: true });
 
@@ -25,7 +25,7 @@ async function saveLead(lead: { name: string; organization: string; email: strin
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, organization, email } = body;
+    const { name, organization, email, existingClient } = body;
 
     if (!name?.trim() || !organization?.trim() || !email?.trim()) {
       return NextResponse.json(
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     const submittedAt = new Date().toISOString();
 
     // Save lead to file
-    await saveLead({ name, organization, email, submittedAt });
+    await saveLead({ name, organization, email, existingClient: existingClient || "Not specified", submittedAt });
 
     // Send email notification via Resend
     if (process.env.RESEND_API_KEY) {
@@ -67,11 +67,12 @@ export async function POST(request: Request) {
           <p><strong>Name:</strong> ${name}</p>
           <p><strong>Organization:</strong> ${organization}</p>
           <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Existing Client:</strong> ${existingClient || "Not specified"}</p>
           <p><strong>Submitted:</strong> ${submittedAt}</p>
         `,
       });
     } else {
-      console.log("Early Access Lead (no RESEND_API_KEY configured):", { name, organization, email, submittedAt });
+      console.log("Early Access Lead (no RESEND_API_KEY configured):", { name, organization, email, existingClient, submittedAt });
     }
 
     return NextResponse.json({ success: true });

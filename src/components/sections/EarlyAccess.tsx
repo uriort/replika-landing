@@ -9,13 +9,14 @@ import { getEmailError } from "@/lib/validators";
 type FormState = "idle" | "submitting" | "success" | "error";
 
 export default function EarlyAccess() {
-  const [form, setForm] = useState({ name: "", organization: "", email: "" });
+  const [form, setForm] = useState({ name: "", organization: "", email: "", existingClient: "" });
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [state, setState] = useState<FormState>("idle");
   const [serverError, setServerError] = useState("");
 
   const validateField = (field: string, value: string) => {
     if (field === "email") return getEmailError(value);
+    if (field === "existingClient") return !value ? "Please select an option" : null;
     if (!value.trim())
       return `${field === "name" ? "Name" : "Organization"} is required`;
     return null;
@@ -137,6 +138,31 @@ export default function EarlyAccess() {
               error={errors.email}
               required
             />
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-medium uppercase tracking-[0.15em] text-muted">
+                Is your organization currently a Deeper Signals client?
+              </label>
+              <div className="flex gap-3">
+                {["Yes", "No"].map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, existingClient: option }))}
+                    className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all duration-200 border ${
+                      form.existingClient === option
+                        ? "bg-foreground text-white border-foreground shadow-md"
+                        : "bg-surface text-muted border-foreground/[0.08] hover:border-foreground/20 hover:text-foreground"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+              {errors.existingClient && (
+                <p className="text-xs text-red-500 mt-0.5">{errors.existingClient}</p>
+              )}
+            </div>
 
             {serverError && (
               <p className="text-sm text-red-500 text-center">{serverError}</p>
