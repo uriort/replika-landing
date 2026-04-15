@@ -23,7 +23,7 @@ const COLUMNS = [
 
 export default function WhyReplika() {
   return (
-    <SectionWrapper dark={false}>
+    <SectionWrapper surface>
       <div className="max-w-5xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -33,7 +33,7 @@ export default function WhyReplika() {
           className="text-center mb-16"
         >
           <Eyebrow>Why Replika</Eyebrow>
-          <h2 className="font-serif text-4xl md:text-5xl font-semibold leading-tight">
+          <h2 className="font-serif text-4xl md:text-5xl font-semibold leading-tight text-foreground">
             Not analytics. Not surveys.
             <br />
             <span className="italic gradient-text">Simulation.</span>
@@ -46,19 +46,16 @@ export default function WhyReplika() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="hidden md:block overflow-x-auto"
+          className="hidden md:block overflow-x-auto bg-white rounded-2xl card-shadow p-8"
         >
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/[0.06]">
+              <tr className="border-b border-foreground/[0.06]">
                 <th className="text-left text-xs uppercase tracking-[0.15em] text-muted font-medium py-4 pr-4">
                   Capability
                 </th>
                 {COLUMNS.map((col) => (
-                  <th
-                    key={col.label}
-                    className="text-center text-xs uppercase tracking-[0.15em] text-muted font-medium py-4 px-3"
-                  >
+                  <th key={col.label} className="text-center text-xs uppercase tracking-[0.15em] text-muted font-medium py-4 px-3">
                     {col.label}
                   </th>
                 ))}
@@ -69,19 +66,14 @@ export default function WhyReplika() {
             </thead>
             <tbody>
               {ROWS.map((row, ri) => (
-                <tr
-                  key={row}
-                  className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors"
-                >
+                <tr key={row} className="border-b border-foreground/[0.04] hover:bg-surface/50 transition-colors">
                   <td className="text-foreground py-4 pr-4">{row}</td>
                   {COLUMNS.map((col) => (
                     <td key={col.label} className="text-center py-4 px-3">
                       {col.values[ri] === "partial" ? (
-                        <span className="text-yellow-500/60 text-xs">Partial</span>
-                      ) : col.values[ri] ? (
-                        <span className="text-accent-teal">&#10003;</span>
+                        <span className="text-amber-500 text-xs">Partial</span>
                       ) : (
-                        <span className="text-white/10">--</span>
+                        <span className="text-foreground/10">--</span>
                       )}
                     </td>
                   ))}
@@ -94,8 +86,8 @@ export default function WhyReplika() {
           </table>
         </motion.div>
 
-        {/* Mobile: stacked cards */}
-        <div className="md:hidden flex flex-col gap-4">
+        {/* Mobile: stacked */}
+        <div className="md:hidden flex flex-col gap-3">
           {ROWS.map((row, ri) => (
             <motion.div
               key={row}
@@ -103,25 +95,21 @@ export default function WhyReplika() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: ri * 0.05 }}
-              className="glass rounded-xl p-5"
+              className="bg-white rounded-xl card-shadow p-5"
             >
-              <h4 className="text-sm font-medium text-foreground mb-3">
-                {row}
-              </h4>
+              <h4 className="text-sm font-medium text-foreground mb-3">{row}</h4>
               <div className="flex items-center justify-between text-xs text-muted">
                 {COLUMNS.map((col) => (
                   <span key={col.label}>
                     {col.label.split(" ")[0]}:{" "}
                     {col.values[ri] === "partial" ? (
-                      <span className="text-yellow-500/60">~</span>
+                      <span className="text-amber-500">~</span>
                     ) : (
-                      <span className="text-white/10">--</span>
+                      <span className="text-foreground/10">--</span>
                     )}
                   </span>
                 ))}
-                <span className="text-accent-teal font-bold">
-                  Replika &#10003;
-                </span>
+                <span className="text-accent-teal font-bold">Replika &#10003;</span>
               </div>
             </motion.div>
           ))}

@@ -60,13 +60,12 @@ export default function Science() {
   const [openId, setOpenId] = useState<string | null>("monte-carlo");
 
   return (
-    <SectionWrapper id="science" dark={false}>
+    <SectionWrapper id="science" surface>
       {/* Background gradient */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.12]"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.05]"
         style={{ backgroundImage: "url(/gradients/bg-crl-fade.jpg)" }}
       />
-      <div className="absolute inset-0 bg-surface/92" />
 
       <div className="relative z-10 max-w-4xl mx-auto w-full">
         <motion.div
@@ -77,7 +76,7 @@ export default function Science() {
           className="text-center mb-16"
         >
           <Eyebrow>Scientific Foundation</Eyebrow>
-          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight">
+          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight text-foreground">
             Grounded in the science of
             <br />
             <span className="gradient-text">simulation.</span>
@@ -103,8 +102,8 @@ export default function Science() {
                   onClick={() => setOpenId(isOpen ? null : method.id)}
                   className={`w-full text-left px-6 py-5 rounded-xl transition-all duration-300 flex items-center justify-between gap-4 ${
                     isOpen
-                      ? "glass-strong"
-                      : "hover:bg-white/[0.03]"
+                      ? "bg-white card-shadow"
+                      : "hover:bg-white/60"
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -135,11 +134,7 @@ export default function Science() {
                     stroke="currentColor"
                     strokeWidth={2}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19 9l-7 7-7-7"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
 

@@ -12,13 +12,13 @@ interface Agent {
   vy: number;
   targetX: number;
   targetY: number;
-  tier: number; // 0=CEO, 1=VP, 2=Dir, 3=Mgr, 4=IC
+  tier: number;
   parentId: number | null;
   radius: number;
   psychology: {
-    type: number; // 0=purple, 1=coral, 2=teal
-    energy: number; // 0-1 activity level
-    label: string;
+    type: number;
+    energy: number;
+    trait: string;
   };
   pulsePhase: number;
 }
@@ -35,18 +35,26 @@ interface Interaction {
 const TIER_LABELS = ["CEO", "VP", "Director", "Manager", "IC"];
 const TIER_COUNTS = [1, 3, 6, 12, 18];
 const PSYCHOLOGY_COLORS = [
-  { r: 124, g: 92, b: 191 },  // purple
+  { r: 99, g: 91, b: 255 },   // purple
   { r: 232, g: 115, b: 74 },  // coral
-  { r: 61, g: 189, b: 167 },  // teal
+  { r: 0, g: 212, b: 170 },   // teal
 ];
-const DRIVER_LABELS = [
-  ["Visionary", "Strategic", "Analytical"],
-  ["Collaborative", "Decisive", "Adaptive"],
-  ["Empathetic", "Resilient", "Innovative"],
+
+// Single-word traits for circle labels
+const TRAITS = [
+  "Driven", "Curious", "Cautious", "Principled", "Restless",
+  "Focused", "Empathic", "Ambitious", "Skeptical", "Collaborative",
+  "Independent", "Deliberate", "Resilient", "Adaptive", "Analytical",
+  "Visionary", "Guarded", "Expressive", "Grounded", "Conflicted",
+  "Overloaded", "Disorganized", "Checked-out", "Stretched", "Siloed",
 ];
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
+}
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function buildOrg(width: number, height: number): Agent[] {
@@ -54,9 +62,8 @@ function buildOrg(width: number, height: number): Agent[] {
   const centerX = width / 2;
   let id = 0;
 
-  // Vertical distribution of tiers
   const tierY = (tier: number) => {
-    const topPad = height * 0.08;
+    const topPad = height * 0.1;
     const botPad = height * 0.08;
     const usable = height - topPad - botPad;
     return topPad + (tier / (TIER_COUNTS.length - 1)) * usable;
@@ -65,18 +72,19 @@ function buildOrg(width: number, height: number): Agent[] {
   for (let tier = 0; tier < TIER_COUNTS.length; tier++) {
     const count = TIER_COUNTS[tier];
     const y = tierY(tier);
-    const spread = width * (0.15 + tier * 0.17);
+    const spread = width * (0.12 + tier * 0.16);
 
     for (let i = 0; i < count; i++) {
       const xOffset =
         count === 1 ? 0 : ((i / (count - 1)) - 0.5) * spread * 2;
-      const targetX = centerX + xOffset + (Math.random() - 0.5) * 20;
-      const targetY = y + (Math.random() - 0.5) * 20;
+      const targetX = centerX + xOffset + (Math.random() - 0.5) * 15;
+      const targetY = y + (Math.random() - 0.5) * 15;
 
       const psychType = id % 3;
-      const driverIdx = Math.floor(Math.random() * 3);
 
-      // Find parent in tier above
+      // Pick a single trait for this agent
+      const trait = TRAITS[id % TRAITS.length];
+
       let parentId: number | null = null;
       if (tier > 0) {
         const parentsInTier = agents.filter((a) => a.tier === tier - 1);
@@ -94,11 +102,11 @@ function buildOrg(width: number, height: number): Agent[] {
         targetY,
         tier,
         parentId,
-        radius: Math.max(4, 12 - tier * 2),
+        radius: Math.max(8, 22 - tier * 3),
         psychology: {
           type: psychType,
           energy: 0.3 + Math.random() * 0.7,
-          label: DRIVER_LABELS[psychType][driverIdx],
+          trait,
         },
         pulsePhase: Math.random() * Math.PI * 2,
       });
@@ -110,17 +118,15 @@ function buildOrg(width: number, height: number): Agent[] {
 
 function buildEdges(agents: Agent[]): [number, number][] {
   const edges: [number, number][] = [];
-  // Hierarchy edges
   for (const a of agents) {
     if (a.parentId !== null) {
       edges.push([a.parentId, a.id]);
     }
   }
-  // Add some cross-tier informal connections (ONA edges)
-  const icAgents = agents.filter((a) => a.tier >= 3);
+  const lateralAgents = agents.filter((a) => a.tier >= 3);
   for (let i = 0; i < 8; i++) {
-    const a = icAgents[Math.floor(Math.random() * icAgents.length)];
-    const b = icAgents[Math.floor(Math.random() * icAgents.length)];
+    const a = lateralAgents[Math.floor(Math.random() * lateralAgents.length)];
+    const b = lateralAgents[Math.floor(Math.random() * lateralAgents.length)];
     if (a.id !== b.id && !edges.some(([x, y]) => (x === a.id && y === b.id) || (x === b.id && y === a.id))) {
       edges.push([a.id, b.id]);
     }
@@ -169,14 +175,13 @@ export default function OrgSimulation() {
     resize();
     window.addEventListener("resize", resize);
 
-    // Mouse hover handling
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
 
       let closest: Agent | null = null;
-      let minDist = 30;
+      let minDist = 40;
       for (const a of agentsRef.current) {
         const d = Math.hypot(a.x - mx, a.y - my);
         if (d < minDist) {
@@ -206,7 +211,6 @@ export default function OrgSimulation() {
     };
   }, [initSim]);
 
-  // Animation loop
   useEffect(() => {
     if (!isInView) {
       cancelAnimationFrame(animRef.current);
@@ -229,7 +233,7 @@ export default function OrgSimulation() {
       const edges = edgesRef.current;
       const interactions = interactionsRef.current;
 
-      // Physics: move agents toward targets with gentle spring
+      // Physics
       for (const a of agents) {
         const dx = a.targetX - a.x;
         const dy = a.targetY - a.y;
@@ -237,11 +241,8 @@ export default function OrgSimulation() {
         a.vy += dy * 0.02;
         a.vx *= 0.92;
         a.vy *= 0.92;
-
-        // Gentle floating motion
-        a.vx += Math.sin(t * 0.5 + a.id * 0.7) * 0.15;
-        a.vy += Math.cos(t * 0.3 + a.id * 1.1) * 0.1;
-
+        a.vx += Math.sin(t * 0.5 + a.id * 0.7) * 0.12;
+        a.vy += Math.cos(t * 0.3 + a.id * 1.1) * 0.08;
         a.x += a.vx;
         a.y += a.vy;
       }
@@ -251,26 +252,19 @@ export default function OrgSimulation() {
         const from = agents[fromId];
         const to = agents[toId];
         if (!from || !to) continue;
-
-        const isHovered =
-          hoveredRef.current === fromId || hoveredRef.current === toId;
+        const isHovered = hoveredRef.current === fromId || hoveredRef.current === toId;
 
         ctx.beginPath();
         ctx.moveTo(from.x, from.y);
-
-        // Curved edges
         const midX = (from.x + to.x) / 2 + (from.x - to.x) * 0.1;
         const midY = (from.y + to.y) / 2;
         ctx.quadraticCurveTo(midX, midY, to.x, to.y);
-
-        ctx.strokeStyle = isHovered
-          ? "rgba(255,255,255,0.25)"
-          : "rgba(255,255,255,0.06)";
+        ctx.strokeStyle = isHovered ? "rgba(10,37,64,0.15)" : "rgba(10,37,64,0.06)";
         ctx.lineWidth = isHovered ? 1.5 : 0.7;
         ctx.stroke();
       }
 
-      // Spawn new interactions periodically
+      // Spawn interactions
       if (Math.random() < 0.04) {
         const edge = edges[Math.floor(Math.random() * edges.length)];
         if (edge) {
@@ -286,85 +280,88 @@ export default function OrgSimulation() {
         }
       }
 
-      // Draw and update interaction pulses
+      // Draw interaction pulses
       for (let i = interactions.length - 1; i >= 0; i--) {
         const inter = interactions[i];
         inter.progress += inter.speed;
-
         if (inter.progress > 1) {
-          // Boost target agent energy
           const target = agents[inter.to];
           if (target) target.psychology.energy = Math.min(1, target.psychology.energy + 0.15);
           interactions.splice(i, 1);
           continue;
         }
-
         const from = agents[inter.from];
         const to = agents[inter.to];
         if (!from || !to) continue;
-
         const px = lerp(from.x, to.x, inter.progress);
         const py = lerp(from.y, to.y, inter.progress);
-
         ctx.beginPath();
-        ctx.arc(px, py, 3, 0, Math.PI * 2);
+        ctx.arc(px, py, 3.5, 0, Math.PI * 2);
         ctx.fillStyle = inter.color;
-        ctx.fill();
-
-        // Trail
-        const trailP = Math.max(0, inter.progress - 0.08);
-        const tx = lerp(from.x, to.x, trailP);
-        const ty = lerp(from.y, to.y, trailP);
-        ctx.beginPath();
-        ctx.arc(tx, ty, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = inter.color.replace("0.9", "0.3");
         ctx.fill();
       }
 
-      // Draw agents
+      // Draw agents (bigger circles with labels inside)
       for (const a of agents) {
         const col = PSYCHOLOGY_COLORS[a.psychology.type];
         const isHovered = hoveredRef.current === a.id;
         const pulse = Math.sin(t * 2 + a.pulsePhase) * 0.3 + 0.7;
         const energyPulse = a.psychology.energy * pulse;
+        const r = isHovered ? a.radius * 1.4 : a.radius;
 
-        // Glow
-        const glowRadius = a.radius * (2 + energyPulse);
-        const glow = ctx.createRadialGradient(
-          a.x, a.y, 0,
-          a.x, a.y, glowRadius
-        );
-        glow.addColorStop(0, `rgba(${col.r},${col.g},${col.b},${isHovered ? 0.4 : 0.15 * energyPulse})`);
+        // Soft glow
+        const glowRadius = r * 2.5;
+        const glow = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, glowRadius);
+        glow.addColorStop(0, `rgba(${col.r},${col.g},${col.b},${isHovered ? 0.2 : 0.08 * energyPulse})`);
         glow.addColorStop(1, `rgba(${col.r},${col.g},${col.b},0)`);
         ctx.beginPath();
         ctx.arc(a.x, a.y, glowRadius, 0, Math.PI * 2);
         ctx.fillStyle = glow;
         ctx.fill();
 
-        // Node
+        // White circle with colored border
         ctx.beginPath();
-        ctx.arc(a.x, a.y, isHovered ? a.radius * 1.5 : a.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${col.r},${col.g},${col.b},${0.6 + energyPulse * 0.4})`;
+        ctx.arc(a.x, a.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,0.95)`;
         ctx.fill();
+        ctx.strokeStyle = `rgba(${col.r},${col.g},${col.b},${0.4 + energyPulse * 0.4})`;
+        ctx.lineWidth = isHovered ? 2.5 : 1.5;
+        ctx.stroke();
 
-        // Inner bright core
-        ctx.beginPath();
-        ctx.arc(a.x, a.y, a.radius * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${0.3 + energyPulse * 0.4})`;
-        ctx.fill();
+        // Single trait label inside circle
+        if (a.tier <= 2 && r > 12) {
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.font = `600 ${Math.max(7, r * 0.42)}px system-ui, sans-serif`;
+          ctx.fillStyle = `rgb(${col.r},${col.g},${col.b})`;
+          ctx.fillText(a.psychology.trait, a.x, a.y);
+        } else if (a.tier === 3 && r > 8) {
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.font = `500 ${Math.max(6, r * 0.4)}px system-ui, sans-serif`;
+          ctx.fillStyle = `rgba(${col.r},${col.g},${col.b},0.8)`;
+          ctx.fillText(a.psychology.trait.slice(0, 3), a.x, a.y);
+        }
 
-        // Decay energy
+        // Colored inner dot for ICs (smallest)
+        if (a.tier === 4) {
+          ctx.beginPath();
+          ctx.arc(a.x, a.y, r * 0.35, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${col.r},${col.g},${col.b},0.5)`;
+          ctx.fill();
+        }
+
         a.psychology.energy = Math.max(0.2, a.psychology.energy - 0.001);
       }
 
-      // Tier labels on the right
-      ctx.font = "10px monospace";
+      // Tier labels
+      ctx.font = "10px system-ui, sans-serif";
       ctx.textAlign = "right";
       for (let tier = 0; tier < TIER_COUNTS.length; tier++) {
         const tierAgents = agents.filter((a) => a.tier === tier);
         if (tierAgents.length === 0) continue;
         const avgY = tierAgents.reduce((s, a) => s + a.y, 0) / tierAgents.length;
-        ctx.fillStyle = "rgba(136,136,160,0.4)";
+        ctx.fillStyle = "rgba(10,37,64,0.2)";
         ctx.fillText(TIER_LABELS[tier], w - 12, avgY + 3);
       }
 
@@ -382,43 +379,41 @@ export default function OrgSimulation() {
       {/* Tooltip */}
       {hoveredAgent && (
         <div
-          className="absolute pointer-events-none z-20 glass-strong rounded-xl px-4 py-3 text-xs max-w-[180px]"
+          className="absolute pointer-events-none z-20 bg-white rounded-xl card-shadow-lg px-5 py-4 text-xs max-w-[220px] border border-foreground/[0.06]"
           style={{
-            left: Math.min(tooltipPos.x + 16, sizeRef.current.w - 200),
-            top: tooltipPos.y - 60,
+            left: Math.min(tooltipPos.x + 16, sizeRef.current.w - 240),
+            top: tooltipPos.y - 80,
           }}
         >
-          <div className="font-semibold text-foreground mb-1">
+          <div className="font-semibold text-foreground mb-2 text-sm">
             {TIER_LABELS[hoveredAgent.tier]}{" "}
             <span className="text-muted font-normal">#{hoveredAgent.id}</span>
           </div>
-          <div className="text-muted space-y-0.5">
+          <div className="text-muted space-y-1.5">
             <div>
-              Driver:{" "}
-              <span
-                className={
-                  hoveredAgent.psychology.type === 0
-                    ? "text-accent-purple"
-                    : hoveredAgent.psychology.type === 1
-                    ? "text-accent-coral"
-                    : "text-accent-teal"
-                }
-              >
-                {hoveredAgent.psychology.label}
-              </span>
+              <span className="text-[10px] uppercase tracking-wider text-muted/70">Trait</span>
+              <div className="mt-0.5">
+                <span
+                  className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                    hoveredAgent.psychology.type === 0
+                      ? "bg-accent-purple/10 text-accent-purple"
+                      : hoveredAgent.psychology.type === 1
+                      ? "bg-accent-coral/10 text-accent-coral"
+                      : "bg-accent-teal/10 text-accent-teal"
+                  }`}
+                >
+                  {hoveredAgent.psychology.trait}
+                </span>
+              </div>
             </div>
-            <div>
-              Energy:{" "}
-              <span className="text-foreground">
-                {Math.round(hoveredAgent.psychology.energy * 100)}%
+            <div className="pt-1 border-t border-foreground/[0.06] flex justify-between">
+              <span>
+                Energy: <span className="text-foreground font-medium">{Math.round(hoveredAgent.psychology.energy * 100)}%</span>
               </span>
-            </div>
-            <div>
-              Connections:{" "}
-              <span className="text-foreground">
-                {edgesRef.current.filter(
-                  ([a, b]) => a === hoveredAgent.id || b === hoveredAgent.id
-                ).length}
+              <span>
+                Links: <span className="text-foreground font-medium">
+                  {edgesRef.current.filter(([a, b]) => a === hoveredAgent.id || b === hoveredAgent.id).length}
+                </span>
               </span>
             </div>
           </div>

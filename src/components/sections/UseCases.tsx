@@ -26,7 +26,7 @@ const CASES = [
     tag: "Total Rewards",
     title: "Compensation Strategy",
     description:
-      "Test compensation band changes across a thousand simulated futures before rolling them out. Predict how specific employees -- and teams -- will react based on their Core Drivers, peer comparison sensitivity, and historical engagement signals. Quantify attrition risk with distributional precision.",
+      "Test compensation band changes across a thousand simulated futures before rolling them out. Predict how specific employees -- and teams -- will react based on their Core Drivers, peer comparison sensitivity, and historical engagement signals.",
     metrics: [
       { label: "Attrition Risk", value: "-18%" },
       { label: "Engagement Lift", value: "+0.31\u03c3" },
@@ -40,7 +40,7 @@ const CASES = [
     tag: "L&D / Coaching",
     title: "Leadership Development",
     description:
-      "Simulate a leader's impact before they're promoted. Model how their decisions will cascade through their team, what team culture will emerge, and where coaching interventions are most likely to unlock performance -- individualized, at scale, before investment is made.",
+      "Simulate a leader's impact before they're promoted. Model how their decisions will cascade through their team, what team culture will emerge, and where coaching interventions are most likely to unlock performance.",
     metrics: [
       { label: "Cascade Depth", value: "4 tiers" },
       { label: "Culture Shift", value: "Mapped" },
@@ -54,7 +54,7 @@ const CASES = [
     tag: "Restructuring",
     title: "Org Design & Restructuring",
     description:
-      "Before announcing a reorg, run it. Simulate the information flow disruption, relationship network fragmentation, trust dynamics, and productivity curves across every proposed structure. Identify the hidden costs of restructuring before your people absorb them.",
+      "Before announcing a reorg, run it. Simulate the information flow disruption, relationship network fragmentation, trust dynamics, and productivity curves across every proposed structure.",
     metrics: [
       { label: "Network Impact", value: "Full graph" },
       { label: "Trust Dynamics", value: "Modeled" },
@@ -68,7 +68,7 @@ const CASES = [
     tag: "Retention",
     title: "Attrition & Engagement",
     description:
-      "Identify hotspots -- individuals and clusters -- at elevated attrition risk months before they surface in exit data. Replika detects emerging disengagement by modeling how individual-level signals compound across team dynamics, manager relationships, and compensation context.",
+      "Identify hotspots -- individuals and clusters -- at elevated attrition risk months before they surface in exit data. Replika detects emerging disengagement by modeling how individual-level signals compound across team dynamics.",
     metrics: [
       { label: "Early Warning", value: "4-6mo" },
       { label: "Cluster Detection", value: "Teams" },
@@ -82,7 +82,7 @@ const CASES = [
     tag: "Executive Decisions",
     title: "Executive Decision Testing",
     description:
-      "Before the C-suite announces a strategic shift -- a new performance framework, a values initiative, a policy change -- simulate how it will land across every demographic, team, and tenure band in your organization. Quantify the gap between intent and likely impact.",
+      "Before the C-suite announces a strategic shift, simulate how it will land across every demographic, team, and tenure band in your organization. Quantify the gap between intent and likely impact.",
     metrics: [
       { label: "Coverage", value: "Org-wide" },
       { label: "Segments", value: "All bands" },
@@ -107,7 +107,7 @@ export default function UseCases() {
           className="text-center mb-14"
         >
           <Eyebrow>Applications</Eyebrow>
-          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight">
+          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight text-foreground">
             Every organizational decision,
             <br />
             <span className="gradient-text">stress-tested.</span>
@@ -128,8 +128,8 @@ export default function UseCases() {
               onClick={() => setActiveId(c.id)}
               className={`px-5 py-2.5 rounded-full text-[13px] font-medium transition-all duration-300 ${
                 activeId === c.id
-                  ? "bg-white/[0.08] text-foreground border border-white/[0.12]"
-                  : "text-muted hover:text-foreground hover:bg-white/[0.03] border border-transparent"
+                  ? "bg-foreground text-white shadow-md"
+                  : "text-muted hover:text-foreground hover:bg-surface border border-transparent"
               }`}
             >
               {c.tab}
@@ -145,10 +145,9 @@ export default function UseCases() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.35 }}
-            className="glass rounded-2xl p-8 md:p-12"
+            className="bg-white rounded-2xl card-shadow-lg p-8 md:p-12"
           >
             <div className="flex flex-col md:flex-row gap-10">
-              {/* Left: content */}
               <div className="flex-1">
                 <span className="text-[10px] uppercase tracking-[0.15em] text-muted block mb-3">
                   {activeCase.tag}
@@ -161,8 +160,7 @@ export default function UseCases() {
                 </p>
               </div>
 
-              {/* Right: metrics */}
-              <div className="flex flex-row md:flex-col gap-6 md:gap-8 md:w-48 md:border-l md:border-white/[0.06] md:pl-10">
+              <div className="flex flex-row md:flex-col gap-6 md:gap-8 md:w-48 md:border-l md:border-foreground/[0.06] md:pl-10">
                 {activeCase.metrics.map((m) => (
                   <div key={m.label}>
                     <div
