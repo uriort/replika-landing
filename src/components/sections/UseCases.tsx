@@ -9,13 +9,13 @@ const CASES = [
   {
     id: "hiring",
     tab: "Hiring",
-    tag: "Talent Acquisition",
-    title: "Hiring & Candidate Fit",
+    tag: "Executive Hiring",
+    title: "C-Suite Hiring Decisions",
     description:
-      "Simulate a candidate's insertion into your actual org -- their psychometric profile against real team dynamics, ONA clusters, and reporting relationships. See how they'll interact, where friction will emerge, and whether they'll accelerate or destabilize the system around them.",
+      "Before making a critical executive hire, simulate how they'll interact with the board, influence team dynamics, and ripple across the entire organization. See how their leadership style, Core Drivers, and decision-making patterns will reshape culture, power structures, and performance -- before the offer letter goes out.",
     metrics: [
-      { label: "Fit Prediction", value: "94%" },
-      { label: "Friction Detection", value: "3.2x" },
+      { label: "Board Fit", value: "94%" },
+      { label: "Org Impact", value: "3.2x" },
       { label: "Time to Insight", value: "< 6min" },
     ],
     accent: "accent-purple",
