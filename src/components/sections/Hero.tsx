@@ -1,16 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useRef, useCallback } from "react";
 import Eyebrow from "@/components/ui/Eyebrow";
 import ArrowCTA from "@/components/ui/ArrowCTA";
 
 const RING1 = [
   { label: "Core Drivers", color: "#635bff" },
-  { label: "Network\nPosition", color: "#ff6b6b" },
-  { label: "Contextual\nState", color: "#00d4aa" },
+  { label: "Network Position", color: "#ff6b6b" },
+  { label: "Contextual State", color: "#00d4aa" },
   { label: "Core Values", color: "#635bff" },
   { label: "Environmental", color: "#ff6b6b" },
-  { label: "Continuous\nSync", color: "#00d4aa" },
+  { label: "Continuous Sync", color: "#00d4aa" },
 ];
 
 const RING2 = [
@@ -19,56 +20,280 @@ const RING2 = [
   "Grit", "Tenure", "Influence", "Collaboration",
 ];
 
-const RING3 = Array.from({ length: 18 }, (_, i) => i);
-const RING4 = Array.from({ length: 24 }, (_, i) => i);
+interface Node {
+  baseAngle: number;
+  radius: number;
+  size: number;
+  color: string;
+  label?: string;
+  ring: number;
+  opacity: number;
+  drift: number;
+  driftSpeed: number;
+  driftPhase: number;
+}
+
+interface Connection {
+  from: number;
+  to: number;
+  color1: string;
+  color2: string;
+  phase: number;
+  speed: number;
+}
 
 function polarToXY(angle: number, radius: number, cx: number, cy: number) {
   const rad = (angle * Math.PI) / 180;
   return { x: cx + Math.cos(rad) * radius, y: cy + Math.sin(rad) * radius };
 }
 
-function FlowParticles({ cx, cy, r1, r2, r3, r4 }: { cx: number; cy: number; r1: number; r2: number; r3: number; r4: number }) {
-  const particles: { fromAngle: number; fromR: number; toR: number; delay: number; duration: number; color: string }[] = [];
-  const colors = ["#635bff", "#00d4aa", "#ff6b6b"];
+function drawPerson(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string, opacity: number) {
+  ctx.globalAlpha = opacity;
+  // Head
+  const headR = size * 0.32;
+  const bodyY = y + headR * 0.4;
+  ctx.beginPath();
+  ctx.arc(x, y - headR * 0.8, headR, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  // Body (rounded trapezoid shape)
+  ctx.beginPath();
+  ctx.moveTo(x - size * 0.35, bodyY + size * 0.7);
+  ctx.quadraticCurveTo(x - size * 0.38, bodyY + size * 0.15, x, bodyY);
+  ctx.quadraticCurveTo(x + size * 0.38, bodyY + size * 0.15, x + size * 0.35, bodyY + size * 0.7);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
 
-  for (let i = 0; i < 8; i++) {
-    particles.push({ fromAngle: i * 45 - 90, fromR: r4, toR: r3, delay: i * 0.8, duration: 3, color: colors[i % 3] });
-  }
-  for (let i = 0; i < 6; i++) {
-    particles.push({ fromAngle: i * 60 - 90, fromR: r3, toR: r2, delay: i * 1.1 + 0.5, duration: 2.5, color: colors[i % 3] });
-  }
-  for (let i = 0; i < 6; i++) {
-    particles.push({ fromAngle: i * 60 - 90, fromR: r2, toR: r1, delay: i * 0.9 + 1, duration: 2, color: colors[i % 3] });
-  }
-  for (let i = 0; i < 6; i++) {
-    particles.push({ fromAngle: i * 60 - 90, fromR: r1, toR: 0, delay: i * 0.7 + 1.5, duration: 1.8, color: colors[i % 3] });
-  }
+function NetworkDiagram() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+  const nodesRef = useRef<Node[]>([]);
+  const connectionsRef = useRef<Connection[]>([]);
+  const initedRef = useRef(false);
+
+  const buildNodes = useCallback((isMobile: boolean) => {
+    const nodes: Node[] = [];
+    const colors = ["#635bff", "#00d4aa", "#ff6b6b"];
+    const r1 = isMobile ? 90 : 150;
+    const r2 = isMobile ? 160 : 260;
+    const r3 = isMobile ? 220 : 350;
+    const r4 = isMobile ? 270 : 430;
+
+    // Ring 1
+    RING1.forEach((n, i) => {
+      nodes.push({
+        baseAngle: i * 60 - 90, radius: r1, size: isMobile ? 16 : 22,
+        color: n.color, label: n.label, ring: 1, opacity: 1,
+        drift: 3, driftSpeed: 0.3 + Math.random() * 0.2, driftPhase: Math.random() * Math.PI * 2,
+      });
+    });
+    // Ring 2
+    RING2.forEach((label, i) => {
+      nodes.push({
+        baseAngle: i * 30 - 90, radius: r2, size: isMobile ? 11 : 16,
+        color: colors[i % 3], label, ring: 2, opacity: 0.85,
+        drift: 4, driftSpeed: 0.25 + Math.random() * 0.2, driftPhase: Math.random() * Math.PI * 2,
+      });
+    });
+    // Ring 3
+    for (let i = 0; i < 18; i++) {
+      nodes.push({
+        baseAngle: i * 20 - 90, radius: r3, size: isMobile ? 7 : 10,
+        color: colors[i % 3], ring: 3, opacity: 0.5,
+        drift: 5, driftSpeed: 0.2 + Math.random() * 0.15, driftPhase: Math.random() * Math.PI * 2,
+      });
+    }
+    // Ring 4
+    for (let i = 0; i < 24; i++) {
+      nodes.push({
+        baseAngle: i * 15 - 90, radius: r4, size: isMobile ? 4 : 6,
+        color: colors[i % 3], ring: 4, opacity: 0.25,
+        drift: 6, driftSpeed: 0.15 + Math.random() * 0.1, driftPhase: Math.random() * Math.PI * 2,
+      });
+    }
+    return nodes;
+  }, []);
+
+  const buildConnections = useCallback((nodes: Node[]) => {
+    const conns: Connection[] = [];
+    // Connect center to ring 1
+    for (let i = 0; i < 6; i++) {
+      conns.push({ from: -1, to: i, color1: "#635bff", color2: nodes[i].color, phase: Math.random() * Math.PI * 2, speed: 0.4 + Math.random() * 0.3 });
+    }
+    // Ring 1 to Ring 2
+    for (let i = 0; i < 12; i++) {
+      const r1Idx = Math.floor(i / 2);
+      conns.push({ from: r1Idx, to: 6 + i, color1: nodes[r1Idx].color, color2: nodes[6 + i].color, phase: Math.random() * Math.PI * 2, speed: 0.3 + Math.random() * 0.3 });
+    }
+    // Ring 2 to Ring 3 (sparse)
+    for (let i = 0; i < 18; i++) {
+      const r2Idx = 6 + Math.floor(i * 12 / 18);
+      conns.push({ from: r2Idx, to: 18 + i, color1: nodes[r2Idx].color, color2: nodes[18 + i].color, phase: Math.random() * Math.PI * 2, speed: 0.2 + Math.random() * 0.2 });
+    }
+    // Some cross-ring connections for network feel
+    for (let i = 0; i < 8; i++) {
+      const a = 6 + Math.floor(Math.random() * 12);
+      const b = 6 + Math.floor(Math.random() * 12);
+      if (a !== b) {
+        conns.push({ from: a, to: b, color1: nodes[a].color, color2: nodes[b].color, phase: Math.random() * Math.PI * 2, speed: 0.5 + Math.random() * 0.4 });
+      }
+    }
+    return conns;
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const isMobile = rect.width < 640;
+      nodesRef.current = buildNodes(isMobile);
+      connectionsRef.current = buildConnections(nodesRef.current);
+      initedRef.current = true;
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+
+    const animate = (time: number) => {
+      if (!initedRef.current) { animRef.current = requestAnimationFrame(animate); return; }
+      const t = time / 1000;
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      const cx = w / 2;
+      const cy = h * 0.5;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const nodes = nodesRef.current;
+      const conns = connectionsRef.current;
+
+      // Calculate current positions
+      const positions = nodes.map((n) => {
+        const angleDrift = Math.sin(t * n.driftSpeed + n.driftPhase) * n.drift;
+        return polarToXY(n.baseAngle + angleDrift, n.radius, cx, cy);
+      });
+
+      // Draw connections with animated gradient opacity
+      conns.forEach((conn) => {
+        const fromPos = conn.from === -1 ? { x: cx, y: cy } : positions[conn.from];
+        const toPos = positions[conn.to];
+        if (!fromPos || !toPos) return;
+
+        // Pulsing opacity — connections appear and fade
+        const pulse = Math.sin(t * conn.speed + conn.phase);
+        const opacity = Math.max(0, pulse * 0.4 + 0.1);
+        if (opacity < 0.02) return;
+
+        const grad = ctx.createLinearGradient(fromPos.x, fromPos.y, toPos.x, toPos.y);
+        grad.addColorStop(0, conn.color1);
+        grad.addColorStop(1, conn.color2);
+
+        ctx.beginPath();
+        ctx.moveTo(fromPos.x, fromPos.y);
+        ctx.lineTo(toPos.x, toPos.y);
+        ctx.strokeStyle = grad;
+        ctx.globalAlpha = opacity;
+        ctx.lineWidth = conn.from === -1 ? 1.2 : 0.8;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      });
+
+      // Draw concentric ring guides
+      [nodes[0]?.radius, nodes[6]?.radius, nodes[18]?.radius, nodes[36]?.radius].forEach((r, i) => {
+        if (!r) return;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(10,37,64,${0.04 - i * 0.008})`;
+        ctx.lineWidth = 0.8 - i * 0.15;
+        ctx.stroke();
+      });
+
+      // Draw nodes (person icons)
+      positions.forEach((pos, i) => {
+        const node = nodes[i];
+        drawPerson(ctx, pos.x, pos.y, node.size, node.color, node.opacity);
+
+        // Labels for ring 1 and 2
+        if (node.label && node.ring <= 2) {
+          ctx.globalAlpha = node.ring === 1 ? 0.85 : 0.6;
+          const isMobile = w < 640;
+          ctx.font = `500 ${node.ring === 1 ? (isMobile ? "8px" : "10px") : (isMobile ? "6px" : "8px")} system-ui, sans-serif`;
+          ctx.fillStyle = "#0a2540";
+          ctx.textAlign = "center";
+          ctx.fillText(node.label, pos.x, pos.y + node.size + (isMobile ? 8 : 12));
+          ctx.globalAlpha = 1;
+        }
+      });
+
+      // Center hub — gradient fill
+      const hubR = w < 640 ? 30 : 48;
+      const hubGrad = ctx.createLinearGradient(cx - hubR, cy - hubR, cx + hubR, cy + hubR);
+      hubGrad.addColorStop(0, "#7B61FF");
+      hubGrad.addColorStop(0.5, "#F97066");
+      hubGrad.addColorStop(1, "#2DD4BF");
+      ctx.beginPath();
+      ctx.arc(cx, cy, hubR, 0, Math.PI * 2);
+      ctx.fillStyle = hubGrad;
+      ctx.globalAlpha = 0.25;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      // White overlay for softer look
+      ctx.beginPath();
+      ctx.arc(cx, cy, hubR, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.fill();
+      // Gradient stroke
+      ctx.beginPath();
+      ctx.arc(cx, cy, hubR, 0, Math.PI * 2);
+      ctx.strokeStyle = hubGrad;
+      ctx.globalAlpha = 0.4;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      ctx.fillStyle = "#0a2540";
+      ctx.globalAlpha = 0.55;
+      ctx.font = `600 ${w < 640 ? "5px" : "7px"} system-ui, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.letterSpacing = "0.15em";
+      ctx.fillText("AGENTIC", cx, cy - (w < 640 ? 5 : 8));
+      ctx.globalAlpha = 1;
+      ctx.font = `700 ${w < 640 ? "12px" : "16px"} system-ui, sans-serif`;
+      ctx.fillText("Twin", cx, cy + (w < 640 ? 7 : 10));
+
+      animRef.current = requestAnimationFrame(animate);
+    };
+
+    animRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(animRef.current);
+    };
+  }, [buildNodes, buildConnections]);
 
   return (
-    <>
-      {particles.map((p, idx) => {
-        const from = polarToXY(p.fromAngle, p.fromR, cx, cy);
-        const to = p.toR === 0 ? { x: cx, y: cy } : polarToXY(p.fromAngle, p.toR, cx, cy);
-        return (
-          <circle key={`particle-${idx}`} r={1.5} fill={p.color} opacity={0}>
-            <animate attributeName="cx" values={`${from.x};${to.x}`} dur={`${p.duration}s`} begin={`${p.delay}s`} repeatCount="indefinite" />
-            <animate attributeName="cy" values={`${from.y};${to.y}`} dur={`${p.duration}s`} begin={`${p.delay}s`} repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0;0.5;0.3;0" dur={`${p.duration}s`} begin={`${p.delay}s`} repeatCount="indefinite" />
-          </circle>
-        );
-      })}
-    </>
+    <canvas
+      ref={canvasRef}
+      className="w-full h-full"
+      style={{ display: "block" }}
+    />
   );
 }
 
 export default function Hero() {
-  const cx = 500;
-  const cy = 380;
-  const r1 = 150;
-  const r2 = 260;
-  const r3 = 350;
-  const r4 = 430;
-
   return (
     <section
       className="relative w-full overflow-hidden"
@@ -78,17 +303,13 @@ export default function Hero() {
         backgroundPosition: "center",
       }}
     >
-      {/* White overlay: light at top for readability, transparent in middle to show gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/10 via-60% to-transparent" />
-      {/* Hard bottom fade to white - covers last 25% of section */}
       <div className="absolute bottom-0 left-0 right-0 h-[30%] bg-gradient-to-t from-white via-white/90 to-transparent z-[5]" />
 
-      {/* Ambient blobs */}
       <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-accent-purple/[0.08] rounded-full blur-[150px]" />
       <div className="absolute top-1/3 -left-20 w-[500px] h-[500px] bg-accent-teal/[0.06] rounded-full blur-[130px]" />
       <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent-coral/[0.05] rounded-full blur-[120px]" />
 
-      {/* Everything in one flow - text, CTAs, diagram */}
       <div className="relative z-10 text-center px-6 pt-28 md:pt-36">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -129,148 +350,20 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Radial diagram - same section, same gradient behind it */}
       <motion.div
         initial={{ opacity: 0, scale: 0.92 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.2, delay: 0.8 }}
         className="relative w-full mt-2 md:mt-4"
       >
-        {/* Side fades only */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-10">
           <div className="absolute top-0 bottom-0 left-0 w-40 bg-gradient-to-r from-white/50 to-transparent" />
           <div className="absolute top-0 bottom-0 right-0 w-40 bg-gradient-to-l from-white/50 to-transparent" />
         </div>
 
-        <svg
-          viewBox="0 0 1000 850"
-          className="w-full max-w-5xl mx-auto"
-          style={{ overflow: "visible" }}
-        >
-          <defs>
-            <clipPath id="hub-clip">
-              <circle cx={cx} cy={cy} r={48} />
-            </clipPath>
-          </defs>
-
-          {/* Concentric ring guides */}
-          <circle cx={cx} cy={cy} r={r1} fill="none" stroke="rgba(10,37,64,0.04)" strokeWidth="0.8" />
-          <circle cx={cx} cy={cy} r={r2} fill="none" stroke="rgba(10,37,64,0.03)" strokeWidth="0.6" />
-          <circle cx={cx} cy={cy} r={r3} fill="none" stroke="rgba(10,37,64,0.02)" strokeWidth="0.5" />
-          <circle cx={cx} cy={cy} r={r4} fill="none" stroke="rgba(10,37,64,0.015)" strokeWidth="0.4" />
-
-          {/* Lines from center to Ring 1 */}
-          {RING1.map((_, i) => {
-            const angle = i * 60 - 90;
-            const p = polarToXY(angle, r1, cx, cy);
-            return (
-              <line key={`l1-${i}`} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="rgba(10,37,64,0.06)" strokeWidth="0.8" strokeDasharray="4 3" />
-            );
-          })}
-
-          {/* Lines from Ring 1 to Ring 2 */}
-          {RING2.map((_, i) => {
-            const angle2 = i * 30 - 90;
-            const p2 = polarToXY(angle2, r2, cx, cy);
-            const nearestR1Angle = Math.round(i / 2) * 60 - 90;
-            const p1 = polarToXY(nearestR1Angle, r1, cx, cy);
-            return (
-              <line key={`l2-${i}`} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="rgba(10,37,64,0.04)" strokeWidth="0.6" strokeDasharray="3 3" />
-            );
-          })}
-
-          {/* Lines from Ring 2 to Ring 3 */}
-          {RING3.map((_, i) => {
-            const angle3 = i * 20 - 90;
-            const p3 = polarToXY(angle3, r3, cx, cy);
-            const nearestR2Angle = Math.round(i * 12 / 18 * 1.5) * (360 / 12) - 90;
-            const p2 = polarToXY(nearestR2Angle, r2, cx, cy);
-            return (
-              <line key={`l3-${i}`} x1={p2.x} y1={p2.y} x2={p3.x} y2={p3.y} stroke="rgba(10,37,64,0.025)" strokeWidth="0.5" strokeDasharray="2 3" />
-            );
-          })}
-
-          {/* Lines from Ring 3 to Ring 4 */}
-          {RING4.map((_, i) => {
-            const angle4 = i * 15 - 90;
-            const p4 = polarToXY(angle4, r4, cx, cy);
-            const nearestR3Angle = Math.round(i * 18 / 24) * 20 - 90;
-            const p3 = polarToXY(nearestR3Angle, r3, cx, cy);
-            return (
-              <line key={`l4-${i}`} x1={p3.x} y1={p3.y} x2={p4.x} y2={p4.y} stroke="rgba(10,37,64,0.015)" strokeWidth="0.4" strokeDasharray="2 4" />
-            );
-          })}
-
-          {/* Animated particles flowing inward */}
-          <FlowParticles cx={cx} cy={cy} r1={r1} r2={r2} r3={r3} r4={r4} />
-
-          {/* Center hub - gradient background */}
-          <image href="/gradients/bg-crl-fade.jpg" x={cx - 48} y={cy - 48} width={96} height={96} clipPath="url(#hub-clip)" preserveAspectRatio="xMidYMid slice" />
-          <circle cx={cx} cy={cy} r={48} fill="rgba(255,255,255,0.35)" stroke="rgba(99,91,255,0.2)" strokeWidth="1.5" />
-          <text x={cx} y={cy - 10} textAnchor="middle" fill="#0a2540" fontFamily="sans-serif" fontSize="7" letterSpacing="0.15em" opacity={0.6}>
-            DIGITAL
-          </text>
-          <text x={cx} y={cy + 10} textAnchor="middle" fontFamily="sans-serif" fontSize="16" fontWeight="700" fill="#0a2540">
-            Twin
-          </text>
-
-          {/* Ring 1 */}
-          {RING1.map((node, i) => {
-            const angle = i * 60 - 90;
-            const p = polarToXY(angle, r1, cx, cy);
-            const lines = node.label.split("\n");
-            return (
-              <g key={`r1-${i}`}>
-                <circle cx={p.x} cy={p.y} r={32} fill="white" stroke="rgba(10,37,64,0.08)" strokeWidth="0.8" />
-                <circle cx={p.x} cy={p.y - (lines.length > 1 ? 12 : 8)} r={3} fill={node.color} />
-                {lines.map((line, li) => (
-                  <text key={li} x={p.x} y={p.y + (lines.length > 1 ? -2 + li * 11 : 5)} textAnchor="middle" fontFamily="sans-serif" fontSize="7.5" fontWeight="500" fill="#0a2540">
-                    {line}
-                  </text>
-                ))}
-              </g>
-            );
-          })}
-
-          {/* Ring 2 */}
-          {RING2.map((label, i) => {
-            const angle = i * 30 - 90;
-            const p = polarToXY(angle, r2, cx, cy);
-            const colors = ["#635bff", "#00d4aa", "#ff6b6b"];
-            return (
-              <g key={`r2-${i}`}>
-                <circle cx={p.x} cy={p.y} r={22} fill="white" stroke="rgba(10,37,64,0.06)" strokeWidth="0.6" />
-                <circle cx={p.x} cy={p.y - 6} r={2} fill={colors[i % 3]} opacity={0.7} />
-                <text x={p.x} y={p.y + 5} textAnchor="middle" fontFamily="sans-serif" fontSize="5.5" fill="#0a2540" opacity={0.7}>
-                  {label}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Ring 3 */}
-          {RING3.map((_, i) => {
-            const angle = i * 20 - 90;
-            const p = polarToXY(angle, r3, cx, cy);
-            const colors = ["#635bff", "#00d4aa", "#ff6b6b"];
-            return (
-              <g key={`r3-${i}`}>
-                <circle cx={p.x} cy={p.y} r={12} fill="white" stroke="rgba(10,37,64,0.04)" strokeWidth="0.5" />
-                <circle cx={p.x} cy={p.y} r={2.5} fill={colors[i % 3]} opacity={0.4} />
-              </g>
-            );
-          })}
-
-          {/* Ring 4 */}
-          {RING4.map((_, i) => {
-            const angle = i * 15 - 90;
-            const p = polarToXY(angle, r4, cx, cy);
-            const colors = ["#635bff", "#00d4aa", "#ff6b6b"];
-            return (
-              <circle key={`r4-${i}`} cx={p.x} cy={p.y} r={6} fill="white" stroke={colors[i % 3]} strokeWidth="0.4" opacity={0.25} />
-            );
-          })}
-        </svg>
+        <div className="w-full max-w-5xl mx-auto aspect-square md:aspect-[4/3]">
+          <NetworkDiagram />
+        </div>
       </motion.div>
     </section>
   );
