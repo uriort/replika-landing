@@ -50,8 +50,12 @@ export async function POST(request: Request) {
 
     const submittedAt = new Date().toISOString();
 
-    // Save lead to file
-    await saveLead({ name, organization, email, existingClient: existingClient || "Not specified", submittedAt });
+    // Save lead to file (best-effort — filesystem is read-only on Vercel)
+    try {
+      await saveLead({ name, organization, email, existingClient: existingClient || "Not specified", submittedAt });
+    } catch {
+      console.log("File save skipped (read-only filesystem)");
+    }
 
     // Send email notification via Resend
     if (process.env.RESEND_API_KEY) {
