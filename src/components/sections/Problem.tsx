@@ -72,7 +72,6 @@ export default function Problem() {
                 <div className="font-mono text-5xl md:text-6xl font-bold mb-4 gradient-text">
                   <AnimatedCounter
                     value={stat.value}
-                    prefix={stat.prefix}
                     suffix={stat.suffix}
                   />
                 </div>
