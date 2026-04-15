@@ -298,13 +298,11 @@ export default function Hero() {
     <section
       className="relative w-full overflow-hidden"
       style={{
-        backgroundImage: "url(/gradients/bg-crl-fade.jpg)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        background: "radial-gradient(ellipse 70% 60% at 50% 55%, rgba(123,97,255,0.18) 0%, rgba(168,139,250,0.1) 25%, rgba(249,112,102,0.06) 40%, rgba(45,212,191,0.04) 55%, rgba(255,255,255,0.95) 80%, #ffffff 100%)",
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/10 via-60% to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 h-[30%] bg-gradient-to-t from-white via-white/90 to-transparent z-[5]" />
+      {/* Soft edge fades */}
+      <div className="absolute bottom-0 left-0 right-0 h-[20%] bg-gradient-to-t from-white to-transparent z-[5]" />
 
       <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-accent-purple/[0.08] rounded-full blur-[150px]" />
       <div className="absolute top-1/3 -left-20 w-[500px] h-[500px] bg-accent-teal/[0.06] rounded-full blur-[130px]" />
