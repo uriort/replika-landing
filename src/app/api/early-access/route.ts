@@ -4,7 +4,7 @@ import { promises as fs } from "fs";
 import path from "path";
 
 const LEADS_FILE = path.join(process.cwd(), "data", "leads.json");
-const NOTIFY_EMAIL = "uri@deepersignals.com";
+const NOTIFY_EMAILS = ["uri@deepersignals.com", "reece@deepersignals.com"];
 
 async function saveLead(lead: { name: string; organization: string; email: string; existingClient: string; submittedAt: string }) {
   const dir = path.dirname(LEADS_FILE);
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
       await resend.emails.send({
         from: "Replika <onboarding@resend.dev>",
-        to: NOTIFY_EMAIL,
+        to: NOTIFY_EMAILS,
         subject: `New Early Access Request: ${organization}`,
         html: `
           <h2>New Replika Early Access Request</h2>
