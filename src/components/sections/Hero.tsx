@@ -114,8 +114,9 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.7 }}
           className="text-base md:text-lg text-muted max-w-xl mx-auto mb-8 leading-relaxed"
         >
-          Agent digital twins of every person in your organization.
-          Thousands of simulations. See what&apos;s coming before it arrives.
+          We&apos;re building a living replica of your organization powered by
+          thousands of agent twins, so every critical decision can be simulated
+          before it&apos;s made.
         </motion.p>
 
         <motion.div
